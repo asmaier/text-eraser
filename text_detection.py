@@ -100,6 +100,7 @@ def main():
         # Read frame
         hasFrame, frame = cap.read()
         if hasFrame:
+            mask = np.zeros(frame.shape, np.uint8)
             # Get frame height and width
             height_ = frame.shape[0]
             width_ = frame.shape[1]
@@ -135,13 +136,17 @@ def main():
                     points.append((vertices[j][0], vertices[j][1]))
                 pts = np.array(points, dtype=np.int32)
                 pts = pts.reshape((-1, 1, 2))
-                cv.fillConvexPoly(frame, pts, (0, 0, 0))
+                cv.fillConvexPoly(mask, pts, color=(255,255,255))
+                mask_grey = cv.cvtColor(mask, cv.COLOR_BGR2GRAY)
+
+                frame = cv.inpaint(frame, mask_grey, 1, cv.INPAINT_TELEA)
+
 
             # Put efficiency information
             cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
 
             # Display the frame
-            cv.imshow(kWinName,frame)
+            cv.imshow(kWinName, frame)
 
             # Press Q on keyboard to stop recording
             # see https://stackoverflow.com/a/50997415/179014
