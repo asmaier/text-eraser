@@ -1,5 +1,6 @@
 # Import required modules
 import cv2 as cv
+import numpy as np
 import math
 import argparse
 
@@ -126,12 +127,15 @@ def main():
                 vertices = cv.boxPoints(boxes[i[0]])
                 # scale the bounding box coordinates based on the respective ratios
                 for j in range(4):
-                    vertices[j][0] *= rW
-                    vertices[j][1] *= rH
+                    vertices[j][0] *= rW             # x-coordinates
+                    vertices[j][1] *= rH             # y-coordinates
+
+                points = []
                 for j in range(4):
-                    p1 = (vertices[j][0], vertices[j][1])
-                    p2 = (vertices[(j + 1) % 4][0], vertices[(j + 1) % 4][1])
-                    cv.line(frame, p1, p2, (0, 255, 0), 1)
+                    points.append((vertices[j][0], vertices[j][1]))
+                pts = np.array(points, dtype=np.int32)
+                pts = pts.reshape((-1, 1, 2))
+                cv.fillConvexPoly(frame, pts, (0, 0, 0))
 
             # Put efficiency information
             cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
